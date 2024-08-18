@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>auto-deposit-service</title>
+    <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=WeakRef,BigInt"></script>
+    <script src="https://cdn.jsdelivr.net/npm/superagent"></script>
+    <script
+      src="https://cdn.ethers.io/lib/ethers-5.2.umd.min.js"
+      type="application/javascript"
+    ></script>
+    <script type="application/javascript">
+      document.addEventListener("DOMContentLoaded", async () => {});
+    </script>
+  </head>
+  <body>
+    <div id="container" style="margin: 3%">
+      <h1 class="title">auto-deposit-service</h1>
+      <div id="results">
+        <div id="users"></div>
+        <p id="totalFeeValue"></p>
+        <p id="selectedFeeValue"></p>
+        <button id="execute">execute</button>
+      </div>
+    </div>
+  </body>
+</html>
