@@ -3,7 +3,7 @@ import * as bitcore from "bitcore-lib";
 import { saveTxToDB } from "./db";
 
 export async function handler(req: Request, res: Response) {
-  const rawTx = req.body as string;
+  const { rawTx } = req.body;
   try {
     const transaction = new bitcore.Transaction(rawTx);
     if (transaction.verify()) {
