@@ -17,11 +17,13 @@ export async function handler(req: Request, res: Response) {
     if (transaction.verify()) {
       const lockTime = transaction.getLockTime();
       const fee = transaction.getFee();
+      const txSizeKb = rawTx.length / 2000;
+      const feePerKb = fee / txSizeKb;
       const txObj = {
         rawTx,
         lockTime,
         checkFee,
-        fee,
+        feePerKb,
       };
       const { error } = await saveTxToDB(txObj);
       if (error) return res.send({ error }).status(500);

@@ -15,7 +15,7 @@ async function main() {
   for (const tx of txs) {
     if (tx.checkFee) {
       // Ignore transactions that do not meet the fee requirement
-      if (tx.fee < currentFeeRate) continue;
+      if (tx.feePerKb < currentFeeRate) continue;
     }
     const res = await broadcastTransaction(tx.rawTx);
     if (res.ok) {
