@@ -1,6 +1,7 @@
 {
   "scripts": {
-    "run": "npx ts-node utils/scheduler.ts"
+    "run": "npx ts-node utils/scheduler.ts",
+    "start": "npx ts-node app.ts"
   },
   "devDependencies": {
     "typescript": "^5.5.4"
