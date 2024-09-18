@@ -6,19 +6,19 @@ Schedule future Bitcoin transactions by leveraging `nLockTime`.
 
 ### Dead man's switch
 
-A user could sign a transaction with a `timelock` that sends their cold storage funds to a trusted third party in the event that they lose access to their keys. If the user retains access to their keys, they can simply spend the inputs and invalidate the `timelocked` transaction. These transactions should be RBF, and multiple transactions should be created with different fees, in case the acceptable fees change drastically in the future. If unsuccessful, this service can broadcast the transaction again at a future date, if it drops out of the `mempool`. Users can also specify that they only want to broadcast the transaction if it has an acceptable fee set, and the service will only broadcast the transaction if the fee is appropriate.
+A user could sign a transaction with a `timelock` that sends their cold storage funds to a trusted third party if they lose access to their keys. If the user retains access to their keys, they can spend the inputs and invalidate the `timelocked` transaction. These transactions should be RBF and multiple transactions should be created with different fees if the acceptable fees change drastically. If unsuccessful, this service can broadcast the transaction again at a future date if it drops out of the `mempool`. Users can also specify that they only want to broadcast the transaction if it has an acceptable fee set, and the service will only broadcast the transaction if the fee is appropriate.
 
 ### Scheduled payments
 
-Let's say that you want to schedule payments to a service provider or a dependant. You could sign transactions with a future date set as the `timelock` and send them to this service. The transaction would then be broadcast at the future date.
+Let's say you want to schedule payments to a service provider or a dependant. You could sign transactions with a future date as the `timelock` and send them to this service. The transaction would then be broadcast at a future date.
 
 ### Fees
 
-Maybe the networks fees are high and you have a non-urgent payment to make. You could sign a transaction or multiple transactions with different `timelocks` to be attempted in the future. These transactions can be `RBF` enabled, allowing you to replace old transaction stuck in the `mempool`. This could look like the following:
+The network fees may be high, and you have a non-urgent payment to make. You could sign a transaction or multiple transactions with different `timelocks` to be attempted. These transactions can be `RBF` enabled, allowing you to replace old transaction(s) stuck in the `mempool`. This could look like the following:
 
 1. Sign five `RBF` transactions with different `timelocks`, in ascending order from the lowest fee to the highest fee
 2. If the first transaction is still in the mempool at the time of the second `timelock`, broadcast the second one to replace the first
-3. Hopefully one of the `timelocked` transactions ends up in the `mempool`.
+3. Hopefully, one of the `timelocked` transactions ends up in the `mempool`.
 
 Users can also specify that they only want to broadcast the transaction if it has an acceptable fee set, and the service will only broadcast the transaction if the fee is appropriate.
 
