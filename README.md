@@ -32,6 +32,9 @@ Users of the blockstream green service can have their `CSV` reset automatically 
 
 Users can add a grace period to this `timelock`, enabling them to spend their funds once the original `CSV` becomes valid, and before the future transaction is set to become valid.
 
+### UTXO consolidation when fees are low
+It is considered good practice to consolidate UTXOs when fees are low, as this enables you to reduce the fee of subsequent transactions. A user can sign a consolidation transaction with a low fee, and have it be broadcast when fees drop. 
+
 ## API
 
 `POST /schedule/tx`
