@@ -68,6 +68,20 @@ export const getTransactionsByTime = async () => {
   }
 };
 
+export const getTransactionByHash = async (hash: string) => {
+  try {
+    const collection = await getTxCollection();
+    const query = {
+      hash,
+    };
+    const cursor = collection.find(query);
+
+    return { data: cursor };
+  } catch (e) {
+    return { error: e };
+  }
+};
+
 /*
  * @dev delete the transaction from the db after successful broadcast
  * @returns - the deletion result, else an error

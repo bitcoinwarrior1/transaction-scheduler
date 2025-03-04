@@ -1,6 +1,6 @@
 import express, { Express, NextFunction, Request, Response } from "express";
 import dotenv from "dotenv";
-import { handler } from "./utils/service";
+import { getHandler, postHandler } from "./utils/service";
 dotenv.config();
 
 const app: Express = express();
@@ -25,7 +25,11 @@ app.use((req: Request, res: Response, next: NextFunction) => {
  * @param request.body - the signed transaction as hex
  * */
 app.post("/schedule/tx", (req: Request, res: Response) => {
-  return handler(req, res);
+  return postHandler(req, res);
+});
+
+app.get("/transaction/lookup/:txHash", (req: Request, res: Response) => {
+  return getHandler(req, res);
 });
 
 app.listen(port, () => {
