@@ -1,15 +1,12 @@
 import { deleteByRawTx, getTransactionsByTime } from "./db";
 
-// TODO persist
-let currentFeeRate = 0;
-
 /*
  * @dev run the service, broadcasting eligible transactions by timelock and fee check
  * @dev should be run with a timed scheduler
  * @dev deletes the db record if successful
  * */
 async function main() {
-  await setFee();
+  const currentFeeRate = await getFee();
   const txs = await getTransactionsByTime();
   // @ts-ignore
   for (const tx of txs) {
@@ -46,11 +43,18 @@ const broadcastTransaction = async (rawTx: string) => {
 /*
  * @dev set the current fee rate
  * */
-const setFee = async () => {
-  // TODO use bitcoin node RPC
+const getFee = async () => {
   const res = await fetch("https://api.blockcypher.com/v1/btc/main");
   const { low_fee_per_kb } = await res.json();
-  currentFeeRate = low_fee_per_kb;
+  return low_fee_per_kb;
 };
 
-main().then(console.log).catch(console.error);
+main()
+  .then(() => {
+    console.log("success!");
+    process.exit(0);
+  })
+  .catch((error) => {
+    console.error(error);
+    process.exit(-1);
+  });

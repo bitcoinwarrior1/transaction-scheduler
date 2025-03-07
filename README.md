@@ -40,6 +40,8 @@ It is considered good practice to consolidate UTXOs when fees are low, as this e
 
 `POST /schedule/tx`
 
+Posting to this endpoint adds your transaction to the scheduler.
+
 Body:
 
 ```json
@@ -48,8 +50,6 @@ Body:
   "checkFee": "boolean"
 }
 ```
-
-Params:
 
 `rawTx`: your raw transaction bytes as hex.
 `checkFee`: set to `true` if you want to prevent broadcasting a transaction if it has a fee that is lower than the recommendation, otherwise `false`.
@@ -60,5 +60,25 @@ Successful output:
 {
   "body": true,
   "status": 200
+}
+```
+
+`GET /transaction/lookup/:txHash`
+
+This endpoint returns the transaction object stored in the database corresponding to the transaction hash provided.
+
+`txHash`: the transaction hash of the scheduled transaction
+
+Successful output:
+
+```json
+{
+  "body": {
+    "rawTx": "RAW_TX_BYTES",
+    "lockTime": "nLockTime",
+    "checkFee": "true/false",
+    "feePerKb": "set fee as number",
+    "hash": "transaction hash"
+  }
 }
 ```
