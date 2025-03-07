@@ -82,3 +82,9 @@ Successful output:
   }
 }
 ```
+
+`DELETE /delete/:txHash`
+
+This endpoint allows a user to delete a transaction from the database and prevent it from every being broadcast.
+
+`txHash`: the transaction hash of the scheduled transaction

@@ -1,6 +1,10 @@
 import { Request, Response } from "express";
 import * as bitcore from "bitcore-lib";
-import { getTransactionByHash, saveTxToDB } from "./db";
+import {
+  deleteTransactionByHash,
+  getTransactionByHash,
+  saveTxToDB,
+} from "./db";
 
 /*
  * @dev handles the API POST /schedule/tx
@@ -50,6 +54,24 @@ export async function getHandler(req: Request, res: Response) {
   const { hash } = req.params;
   try {
     const { error, data } = await getTransactionByHash(hash);
+    if (error) return res.send({ error }).status(500);
+    return res.send({ data }).status(200);
+  } catch (error) {
+    return res.send({ error });
+  }
+}
+
+/*
+ * @dev handles the API DELETE /delete/:txHash
+ * @param req - the request object
+ * @param res - the response object
+ * @returns status 200 on success with a response body of { data: deletedRecord }
+ * @returns status 500 on server failure
+ * */
+export async function deleteHandler(req: Request, res: Response) {
+  const { hash } = req.params;
+  try {
+    const { error, data } = await deleteTransactionByHash(hash);
     if (error) return res.send({ error }).status(500);
     return res.send({ data }).status(200);
   } catch (error) {

@@ -1,6 +1,6 @@
 import express, { Express, NextFunction, Request, Response } from "express";
 import dotenv from "dotenv";
-import { getHandler, postHandler } from "./utils/service";
+import { deleteHandler, getHandler, postHandler } from "./utils/service";
 dotenv.config();
 
 const app: Express = express();
@@ -28,8 +28,20 @@ app.post("/schedule/tx", (req: Request, res: Response) => {
   return postHandler(req, res);
 });
 
+/*
+ * @dev get a transaction by hash
+ * @param txHash - the transaction hash as a string
+ * */
 app.get("/transaction/lookup/:txHash", (req: Request, res: Response) => {
   return getHandler(req, res);
+});
+
+/*
+ * @dev delete a transaction from the DB by has
+ * @param txHash - the transaction hash as a string
+ * */
+app.delete("/delete/:txHash", (req: Request, res: Response) => {
+  return deleteHandler(req, res);
 });
 
 app.listen(port, () => {

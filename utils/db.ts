@@ -68,6 +68,11 @@ export const getTransactionsByTime = async () => {
   }
 };
 
+/*
+ * @dev - get a transaction by its hash
+ * @param hash - the transaction hash
+ * @returns - the transaction object found in the DB
+ * */
 export const getTransactionByHash = async (hash: string) => {
   try {
     const collection = await getTxCollection();
@@ -75,6 +80,25 @@ export const getTransactionByHash = async (hash: string) => {
       hash,
     };
     const cursor = collection.find(query);
+
+    return { data: cursor };
+  } catch (e) {
+    return { error: e };
+  }
+};
+
+/*
+ * @dev - delete a transaction by its hash
+ * @param hash - the transaction hash
+ * @returns - the delete result
+ * */
+export const deleteTransactionByHash = async (hash: string) => {
+  try {
+    const collection = await getTxCollection();
+    const query = {
+      hash,
+    };
+    const cursor = await collection.deleteOne(query);
 
     return { data: cursor };
   } catch (e) {
