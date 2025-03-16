@@ -62,7 +62,7 @@ export const saveTxToDB = async (txObj: TxObj) => {
 };
 
 /*
- * @returns - transactions that are currently valid by timelock, if any, else an error
+ * @returns - transactions that are currently valid
  * */
 export const getTransactionsByTime = async () => {
   try {
@@ -71,9 +71,10 @@ export const getTransactionsByTime = async () => {
     const query = {
       timeLock: { $lt: time },
     };
-    const cursor = await collection.findOne(query);
+    const cursor = collection.find(query);
+    const result = await cursor.toArray();
 
-    return { data: cursor as DbTxObj };
+    return { data: result as DbTxObj[] };
   } catch (e) {
     return { error: e };
   }
@@ -92,7 +93,7 @@ export const getTransactionByHash = async (hash: string) => {
     };
     const cursor = await collection.findOne(query);
 
-    return { data: cursor as DbTxObj };
+    return { data: cursor as DbTxObj | {} };
   } catch (e) {
     return { error: e };
   }

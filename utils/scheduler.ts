@@ -5,11 +5,12 @@ import { deleteByRawTx, getTransactionsByTime } from "./db";
  * @dev should be run with a timed scheduler
  * @dev deletes the db record if successful
  * */
-async function main() {
+export async function main() {
   const currentFeeRate = await getFee();
   const currentPrice = await getPrice();
-  const txs = await getTransactionsByTime();
-  // @ts-ignore
+  const { error, data: txs } = await getTransactionsByTime();
+  if (error) throw error;
+  if (!txs) throw "DB error";
   for (const tx of txs) {
     if (tx.checkFee) {
       // Ignore transactions that do not meet the fee requirement
@@ -22,8 +23,10 @@ async function main() {
     const res = await broadcastTransaction(tx.rawTx);
     if (res.ok) {
       await deleteByRawTx(tx.rawTx);
+      return true;
     } else {
       console.error("Failed to broadcast transaction:", res.statusText);
+      return false;
     }
   }
 }
@@ -32,23 +35,23 @@ async function main() {
  * @dev broadcast the signed transaction
  * @param rawTx - hex encoded raw transaction
  * */
-const broadcastTransaction = async (rawTx: string) => {
-  // TODO use bitcoin node RPC
+export const broadcastTransaction = async (rawTx: string) => {
   const url = "https://api.blockcypher.com/v1/btc/main/txs/push";
-
-  return await fetch(url, {
+  const data = await fetch(url, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({ tx: rawTx }),
   });
+
+  return data.json();
 };
 
 /*
  * @dev get the current fee rate
  * */
-const getFee = async () => {
+export const getFee = async () => {
   const res = await fetch("https://api.blockcypher.com/v1/btc/main");
   const { low_fee_per_kb } = await res.json();
   return low_fee_per_kb;
@@ -57,7 +60,7 @@ const getFee = async () => {
 /*
  * @dev get the current price in USD
  * */
-const getPrice = async () => {
+export const getPrice = async () => {
   try {
     const data = await fetch(
       "https://api.api-ninjas.com/v1/cryptoprice?symbol=BTCUSD",
@@ -73,9 +76,9 @@ const getPrice = async () => {
 main()
   .then(() => {
     console.log("success!");
-    process.exit(0);
+    // process.exit(0);
   })
   .catch((error) => {
     console.error(error);
-    process.exit(-1);
+    // process.exit(-1);
   });
