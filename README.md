@@ -12,6 +12,10 @@ A user could sign a transaction with a `timelock` that sends their cold storage 
 
 Let's say you want to schedule payments to a service provider or a dependant. You could sign transactions with a future date as the `timelock` and send them to this service. The transaction would then be broadcast at a future date.
 
+### Send bitcoin when it reaches a certain price
+
+Some users may wish to only send bitcoin at a certain rate, to say, an auto sell exchange. A user could create a transaction and set it to be sent to their exchange account when it hits a certain rate. This could then be sold automatically once the bitcoin is received and credited by the exchange.
+
 ### Fees
 
 The network fees may be high, and you have a non-urgent payment to make. You could sign a transaction or multiple transactions with different `timelocks` to be attempted. These transactions can be `RBF` enabled, allowing you to replace old transaction(s) stuck in the `mempool`. This could look like the following:
@@ -47,13 +51,14 @@ Body:
 ```json
 {
   "rawTx": "YOUR_RAW_SIGNED_TRANSACTION_IN_HEX",
-  "checkFee": "boolean"
+  "checkFee": "boolean",
+  "price": "USD price that you want the transaction to be broadcast at"
 }
 ```
 
 `rawTx`: your raw transaction bytes as hex.
 `checkFee`: set to `true` if you want to prevent broadcasting a transaction if it has a fee that is lower than the recommendation, otherwise `false`.
-
+`price`: set to 0 if you do not care about the price at time of broadcast, else the min USD figure as a number
 Successful output:
 
 ```json

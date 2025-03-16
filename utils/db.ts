@@ -1,7 +1,18 @@
 import "dotenv";
-import { MongoClient } from "mongodb";
+import { MongoClient, WithId } from "mongodb";
 
 let mongoClient: MongoClient;
+
+export interface DbTxObj extends WithId<Document>, TxObj {}
+
+export interface TxObj {
+  rawTx: string; // the raw transaction bytes as hex string
+  lockTime: number; // nLockTime
+  checkFee: boolean; // true to check, else false
+  feePerKb: number; // sats per vbyte
+  hash: string; // the transaction hash/id
+  price: number; // the price to broadcast the transaction at in USD
+}
 
 /*
  * @dev gets the mongo client instance
@@ -32,9 +43,9 @@ export const getTxCollection = async () => {
  * @dev saves a valid transaction to the database
  * @returns - the insert result if successful, else an error
  * */
-export const saveTxToDB = async (txObj: any) => {
+export const saveTxToDB = async (txObj: TxObj) => {
   try {
-    const { rawTx, timeLock } = txObj;
+    const { rawTx, lockTime } = txObj;
     const collection = await getTxCollection();
 
     const query = { rawTx: rawTx };
@@ -42,11 +53,11 @@ export const saveTxToDB = async (txObj: any) => {
 
     const update = { $set: txObj };
 
-    const insertResult = await collection.updateOne(query, update, options);
+    await collection.updateOne(query, update, options);
 
-    return { data: insertResult };
-  } catch (e) {
-    return { error: e };
+    return { data: true };
+  } catch (error) {
+    return { error };
   }
 };
 
@@ -60,9 +71,9 @@ export const getTransactionsByTime = async () => {
     const query = {
       timeLock: { $lt: time },
     };
-    const cursor = collection.find(query);
+    const cursor = await collection.findOne(query);
 
-    return { data: cursor };
+    return { data: cursor as DbTxObj };
   } catch (e) {
     return { error: e };
   }
@@ -81,7 +92,7 @@ export const getTransactionByHash = async (hash: string) => {
     };
     const cursor = await collection.findOne(query);
 
-    return { data: cursor };
+    return { data: cursor as DbTxObj };
   } catch (e) {
     return { error: e };
   }
@@ -98,9 +109,9 @@ export const deleteTransactionByHash = async (hash: string) => {
     const query = {
       hash,
     };
-    const cursor = await collection.deleteOne(query);
+    await collection.deleteOne(query);
 
-    return { data: cursor };
+    return { data: true };
   } catch (e) {
     return { error: e };
   }
@@ -113,11 +124,10 @@ export const deleteTransactionByHash = async (hash: string) => {
 export const deleteByRawTx = async (rawTx: string) => {
   try {
     const collection = await getTxCollection();
-    const data = await collection.deleteOne({
+    await collection.deleteOne({
       rawTx,
     });
-
-    return { data };
+    return { data: true };
   } catch (error) {
     return { error };
   }

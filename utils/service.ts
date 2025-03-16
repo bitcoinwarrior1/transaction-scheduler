@@ -4,6 +4,7 @@ import {
   deleteTransactionByHash,
   getTransactionByHash,
   saveTxToDB,
+  TxObj,
 } from "./db";
 
 /*
@@ -15,7 +16,7 @@ import {
  * @returns status 400 on an invalid transaction
  * */
 export async function postHandler(req: Request, res: Response) {
-  const { rawTx, checkFee } = req.body;
+  const { rawTx, checkFee, price } = req.body;
   if (rawTx === "") return res.send({ error: "No raw tx found" }).status(400);
   try {
     const transaction = new bitcore.Transaction(rawTx);
@@ -30,12 +31,13 @@ export async function postHandler(req: Request, res: Response) {
           .status(400);
       const txSizeKb = rawTx.length / 2000;
       const feePerKb = fee / txSizeKb;
-      const txObj = {
+      const txObj: TxObj = {
         rawTx,
-        lockTime,
+        lockTime: lockTime as number,
         checkFee,
         feePerKb,
         hash,
+        price,
       };
       const { error } = await saveTxToDB(txObj);
       if (error) return res.send({ error }).status(500);
