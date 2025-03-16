@@ -16,6 +16,7 @@ import {
  * */
 export async function postHandler(req: Request, res: Response) {
   const { rawTx, checkFee } = req.body;
+  if (rawTx === "") return res.send({ error: "No raw tx found" }).status(400);
   try {
     const transaction = new bitcore.Transaction(rawTx);
     if (transaction.verify()) {
