@@ -79,7 +79,7 @@ export const getTransactionByHash = async (hash: string) => {
     const query = {
       hash,
     };
-    const cursor = collection.find(query);
+    const cursor = await collection.findOne(query);
 
     return { data: cursor };
   } catch (e) {

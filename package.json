@@ -1,7 +1,8 @@
 {
   "scripts": {
     "scheduler": "npx ts-node utils/scheduler.ts",
-    "start": "npx ts-node app.ts"
+    "start": "npx ts-node app.ts",
+    "dev": "npx nodemon app.ts"
   },
   "devDependencies": {
     "typescript": "^5.5.4"

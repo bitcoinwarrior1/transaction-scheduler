@@ -51,9 +51,9 @@ export async function postHandler(req: Request, res: Response) {
  * @returns status 500 on server failure
  * */
 export async function getHandler(req: Request, res: Response) {
-  const { hash } = req.params;
+  const { txHash } = req.params;
   try {
-    const { error, data } = await getTransactionByHash(hash);
+    const { error, data } = await getTransactionByHash(txHash);
     if (error) return res.send({ error }).status(500);
     return res.send({ data }).status(200);
   } catch (error) {
