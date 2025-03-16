@@ -23,6 +23,11 @@ export async function postHandler(req: Request, res: Response) {
       const lockTime = transaction.getLockTime();
       const fee = transaction.getFee();
       const hash = transaction.hash;
+      const alreadyBroadcast = await getTxAlreadyBroadcast(hash);
+      if (alreadyBroadcast)
+        return res
+          .send({ error: "Tx is already sent to the network" })
+          .status(400);
       const txSizeKb = rawTx.length / 2000;
       const feePerKb = fee / txSizeKb;
       const txObj = {
@@ -41,6 +46,24 @@ export async function postHandler(req: Request, res: Response) {
     }
   } catch (error) {
     return res.send({ error });
+  }
+}
+
+/*
+ * @dev checks if a transaction has already been broadcast
+ * @param txHash - the transaction hash to check
+ * @returns true if already broadcast, else false
+ * */
+async function getTxAlreadyBroadcast(txHash: string) {
+  try {
+    const data = await fetch(
+      `https://api.blockcypher.com/v1/btc/main/txs/${txHash}`,
+    );
+    const result = await data.json();
+    return result.size > 0;
+  } catch (e) {
+    console.error(e);
+    return false;
   }
 }
 
