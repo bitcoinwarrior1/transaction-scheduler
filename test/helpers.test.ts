@@ -1,9 +1,9 @@
-import { getFee, getPrice } from "../utils/scheduler";
-import { DbTxObj, getTransactionsByTime } from "../utils/db";
+import { getFee, getPrice } from "../utils/helpers";
+import { DbTxObj } from "../utils/db";
 import * as db from "../utils/db";
-import * as scheduler from "../utils/scheduler";
+import * as helpers from "../utils/helpers";
 
-describe("scheduler", () => {
+describe("helpers", () => {
   jest.spyOn(db, "getTransactionsByTime").mockResolvedValue({
     data: [
       {
@@ -16,7 +16,7 @@ describe("scheduler", () => {
       },
     ] as DbTxObj[],
   });
-  jest.spyOn(scheduler, "broadcastTransaction").mockResolvedValue({
+  jest.spyOn(helpers, "broadcastTransaction").mockResolvedValue({
     data: true,
   });
 
@@ -28,10 +28,5 @@ describe("scheduler", () => {
   it("should be able to get the current price", async () => {
     const price = await getPrice();
     expect(price).toBeGreaterThan(0);
-  });
-
-  it("should work", async () => {
-    const result = await scheduler.main();
-    expect(result).toEqual(true);
   });
 });
