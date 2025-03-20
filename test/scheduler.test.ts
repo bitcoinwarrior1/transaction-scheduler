@@ -27,7 +27,6 @@ describe("scheduler", () => {
 
   it("should be able to get the current price", async () => {
     const price = await getPrice();
-    console.log(price);
     expect(price).toBeGreaterThan(0);
   });
 

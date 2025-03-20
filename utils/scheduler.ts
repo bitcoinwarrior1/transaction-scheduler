@@ -64,12 +64,20 @@ export const getPrice = async () => {
   try {
     const data = await fetch(
       "https://api.api-ninjas.com/v1/cryptoprice?symbol=BTCUSD",
+      {
+        method: "GET",
+        headers: {
+          "X-Api-Key":
+            process.env.API_NINJAS_API_KEY ??
+            "dEWUYaMufvu+QsRIqtQKvw==ZSKse7zkswkcUTwo",
+        },
+      },
     );
     const result = await data.json();
-    return result.price;
+    return parseInt(result.price);
   } catch (error) {
     console.error(error);
-    return 100_000; // fallback to 100k USD
+    return 0; // fallback to 100k USD
   }
 };
 
