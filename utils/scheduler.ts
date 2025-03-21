@@ -19,15 +19,14 @@ export async function main() {
     }
     if (tx.price > 0) {
       // Ignore transactions with the price set above the current rate
-      if (tx.price < currentPrice) continue;
+      if (tx.price >= currentPrice) continue;
     }
     const res = await broadcastTransaction(tx.rawTx);
-    if (res.ok) {
-      await deleteByRawTx(tx.rawTx);
-      return true;
-    } else {
+    if (res.error) {
       console.error("Failed to broadcast transaction:", res.statusText);
-      return false;
+    } else {
+      await deleteByRawTx(tx.rawTx);
+      console.log(`Success: https://mempool.space/tx/${tx.hash}`);
     }
   }
 }
