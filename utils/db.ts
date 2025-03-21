@@ -69,7 +69,7 @@ export const getTransactionsByTime = async () => {
     const time = new Date().getTime();
     const collection = await getTxCollection();
     const query = {
-      timeLock: { $lt: time },
+      lockTime: { $lt: time },
     };
     const cursor = collection.find(query);
     const result = await cursor.toArray();
