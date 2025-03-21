@@ -6,6 +6,7 @@ import {
   saveTxToDB,
   TxObj,
 } from "./db";
+import { fetchInputUTXO } from "./helpers";
 
 /*
  * @dev handles the API POST /schedule/tx
@@ -17,37 +18,75 @@ import {
  * */
 export async function postHandler(req: Request, res: Response) {
   const { rawTx, checkFee, price } = req.body;
-  if (rawTx === "") return res.send({ error: "No raw tx found" }).status(400);
-  try {
-    const transaction = new bitcore.Transaction(rawTx);
-    if (transaction.verify()) {
-      const lockTime = transaction.getLockTime();
-      const fee = transaction.getFee();
-      const hash = transaction.hash;
-      const alreadyBroadcast = await getTxAlreadyBroadcast(hash);
-      if (alreadyBroadcast)
-        return res
-          .send({ error: "Tx is already sent to the network" })
-          .status(400);
-      const txSizeKb = rawTx.length / 2000;
-      const feePerKb = fee / txSizeKb;
-      const txObj: TxObj = {
-        rawTx,
-        lockTime: lockTime as number,
-        checkFee,
-        feePerKb,
-        hash,
-        price,
-      };
-      const { error } = await saveTxToDB(txObj);
-      if (error) return res.send({ error }).status(500);
 
-      return res.send({ data: hash }).status(200);
-    } else {
-      return res.send({ error: "Invalid transaction" }).status(400);
+  if (!rawTx || rawTx === "") {
+    return res.status(400).send({ error: "No raw tx found" });
+  }
+
+  try {
+    let transaction = new bitcore.Transaction(rawTx);
+
+    if (!transaction.verify()) {
+      return res.status(400).send({ error: "Invalid transaction" });
     }
-  } catch (error) {
-    return res.send({ error });
+
+    const utxos = [];
+    let inputValue = 0;
+    for (const input of transaction.inputs) {
+      const txid = input.prevTxId.toString("hex");
+      const vout = input.outputIndex;
+
+      const utxo = await fetchInputUTXO(txid, vout);
+      utxos.push(utxo);
+      inputValue += utxo.satoshis;
+    }
+
+    let outputValue = 0;
+    for (const output of transaction.outputs) {
+      outputValue += output.satoshis;
+    }
+
+    // TODO can probably remove this
+    transaction = transaction.from(utxos);
+
+    let lockTime = new Date(transaction.getLockTime()).getTime();
+    const fee = inputValue - outputValue;
+    if (fee < 0)
+      return res
+        .send({ error: "Output value exceeds input value" })
+        .status(400);
+    const hash = transaction.hash;
+
+    const alreadyBroadcast = await getTxAlreadyBroadcast(hash);
+    if (alreadyBroadcast) {
+      return res
+        .status(400)
+        .send({ error: "Tx is already sent to the network" });
+    }
+
+    const txSizeKb = rawTx.length / 2000; // assuming rawTx is hex string (2 hex chars = 1 byte)
+    const feePerKb = fee / txSizeKb;
+
+    const txObj: TxObj = {
+      rawTx,
+      lockTime,
+      checkFee,
+      feePerKb,
+      hash,
+      price,
+    };
+
+    const { error } = await saveTxToDB(txObj);
+    if (error) {
+      return res.status(500).send({ error });
+    }
+
+    return res.status(200).send({ data: hash });
+  } catch (error: any) {
+    console.error(error);
+    return res
+      .status(500)
+      .send({ error: error.message || "Internal server error" });
   }
 }
 
