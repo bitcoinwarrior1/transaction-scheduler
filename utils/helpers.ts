@@ -2,6 +2,8 @@
  * @dev broadcast the signed transaction
  * @param rawTx - hex encoded raw transaction
  * */
+import { Transaction } from "bitcore-lib";
+
 export const broadcastTransaction = async (rawTx: string) => {
   const url = "https://api.blockcypher.com/v1/btc/main/txs/push";
   const data = await fetch(url, {
@@ -47,3 +49,27 @@ export const getPrice = async () => {
     return 0; // fallback to 100k USD
   }
 };
+
+export async function fetchInputUTXO(txid: string, voutIndex: number) {
+  const url = `https://mempool.space/api/tx/${txid}`;
+  const response = await fetch(url);
+
+  if (!response.ok) {
+    throw new Error(`Failed to fetch TX data: ${response.statusText}`);
+  }
+
+  const txData = await response.json();
+  const vout = txData.vout[voutIndex];
+
+  if (!vout) {
+    throw new Error(`No vout at index ${voutIndex}`);
+  }
+
+  return new Transaction.UnspentOutput({
+    txId: txid,
+    outputIndex: voutIndex,
+    address: vout.scriptpubkey_address,
+    script: vout.scriptpubkey, // hex scriptPubKey
+    satoshis: vout.value,
+  });
+}
